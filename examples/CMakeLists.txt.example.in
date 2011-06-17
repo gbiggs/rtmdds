@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 2.8)
+
+# Search for dependencies
+find_package(rtmdds REQUIRED)
+# Searching for rtmdds will bring in the OpenRTM and DDS compile/link
+# information as well. You can also search for it explicitly by uncommenting
+# the following lines.
+#
+## Add the directory containing the modules to the CMake search path.
+## This is needed to use the FindOpenRTM.cmake and FindDDS.cmake modules with
+## find_package.
+#list(APPEND CMAKE_MODULE_PATH @CMAKE_INSTALL_PREFIX@/@SHARE_INSTALL_DIR@)
+## On Windows, if you set the RTMDSS_ROOT environment variable to the location
+## where rtmdss was installed, the above line can be replaced with:
+## list(APPEND CMAKE_MODULE_PATH ${RTMDSS_ROOT}/@SHARE_INSTALL_DIR@)
+## Search for OpenRTM and DDS.
+#find_package(OpenRTM 1 REQUIRED)
+#find_package(DDS 4.5 REQUIRED)
+
+# Source files
+set(sub_comp_srcs sub_rtc.cpp)
+set(sub_standalone_srcs sub_standalone.cpp)
+set(pub_comp_srcs pub_rtc.cpp)
+set(pub_standalone_srcs pub_standalone.cpp)
+
+# Set compiler flags
+include_directories(${OPENRTM_INCLUDE_DIRS} ${DDS_INCLUDE_DIRS}
+    ${RTMDDS_INCLUDE_DIRS})
+add_definitions(${OPENRTM_DEFINITIONS} ${DDS_DEFINITIONS}
+    ${RTMDDS_DEFINITIONS})
+
+# Compile the IDL files used in the components
+set(idls ${CMAKE_CURRENT_SOURCE_DIR}/test.idl)
+RTMDDS_COMPILE_IDL_FILES(${idls})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+# Compile the publisher component
+add_library(rtmdds_pubcomp SHARED
+    ${pub_comp_srcs} ${ALL_IDL_SRCS})
+add_executable(rtmdds_pubcomp_standalone ${pub_standalone_srcs})
+target_link_libraries(rtmdds_pubcomp ${OPENRTM_LIBRARIES} ${DDS_LIBARIES}
+    ${RTMDDS_LIBRARIES})
+target_link_libraries(rtmdds_pubcomp_standalone rtmdds_pubcomp)
+
+# Compile the subscriber component
+add_library(rtmdds_subcomp SHARED
+    ${sub_comp_srcs} ${ALL_IDL_SRCS})
+add_executable(rtmdds_subcomp_standalone ${sub_standalone_srcs})
+target_link_libraries(rtmdds_subcomp ${OPENRTM_LIBRARIES} ${DDS_LIBRARIES}
+    ${RTMDDS_LIBRARIES})
+target_link_libraries(rtmdds_subcomp_standalone rtmdds_subcomp)
+
