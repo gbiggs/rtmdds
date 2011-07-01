@@ -86,7 +86,7 @@ namespace RTC
 
                 DDS_DomainParticipantFactoryQos qos;
                 DDS_ReturnCode_t res = fact->get_qos(qos);
-                if (!res)
+                if (res != DDS_RETCODE_OK)
                 {
                     RTC_ERROR(("Failed to get factory QoS (%d); cannot "
                                 "set QoS properties", res));
@@ -101,9 +101,9 @@ namespace RTC
                         // [URL1 | URL2 | URL3 | ... | URLn]
                         // Only one URL will be loaded; the remainder are
                         // considered alternates for fault tolerance.
-                        qos.profile.url_profile.length(1);
-                        qos.profile.url_profile[1] =
-                            DDS_String_dup(props_["qos_file"].c_str());
+                        char const* prof[1];
+                        prof[0] = props_["qos_file"].c_str();
+                        qos.profile.url_profile.from_array(prof, 1);
                     }
                     if (coil::toBool(props_.getProperty("ignore_user_profile",
                                     "NO"), "YES", "NO", false))

@@ -50,7 +50,8 @@ class SubscriberRTC
 
     private:
         TestDataType value_;
-        RTC::DDSSubPort<TestDataType, TestDataTypeDataReader> port_;
+        RTC::DDSSubPort<TestDataType, TestDataTypeSeq,
+            TestDataTypeDataReader> port_;
 };
 
 
