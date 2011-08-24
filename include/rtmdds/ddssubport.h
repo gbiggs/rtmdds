@@ -104,11 +104,14 @@ namespace RTC
                         char const* prof[1];
                         prof[0] = props_["qos_file"].c_str();
                         qos.profile.url_profile.from_array(prof, 1);
+                        RTC_INFO((("Using QoS profile from " +
+                                        props_["qos_file"]).c_str()));
                     }
                     if (coil::toBool(props_.getProperty("ignore_user_profile",
                                     "NO"), "YES", "NO", false))
                     {
                         qos.profile.ignore_user_profile = DDS_BOOLEAN_TRUE;
+                        RTC_INFO(("Ignoring user QoS profile"));
                     }
                     else
                     {
@@ -118,6 +121,7 @@ namespace RTC
                                     "NO"), "YES", "NO", false))
                     {
                         qos.profile.ignore_environment_profile = DDS_BOOLEAN_TRUE;
+                        RTC_INFO(("Ignoring environment QoS profile"));
                     }
                     else
                     {
@@ -127,6 +131,7 @@ namespace RTC
                                     "NO"), "YES", "NO", false))
                     {
                         qos.profile.ignore_resource_profile = DDS_BOOLEAN_TRUE;
+                        RTC_INFO(("Ignoring resource QoS profile"));
                     }
                     else
                     {
