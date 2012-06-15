@@ -72,6 +72,7 @@ RTC::ReturnCode_t PublisherRTC::onExecute(RTC::UniqueId ec_id)
     tdt->int_value = count_++;
     snprintf(tdt->str_value, 256, "String value #%d", tdt->int_value);
     port_.write(*tdt);
+    std::cout << "Wrote value " << tdt->str_value << '\n';
     TestDataTypeTypeSupport::delete_data(tdt);
     return RTC::RTC_OK;
 }

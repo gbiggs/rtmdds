@@ -39,6 +39,9 @@ find_library(DDS_CPP_LIBRARY nddscpp
 find_library(DDS_CORE_LIBRARY nddscore
     HINTS ${DDS_ROOT}/lib $ENV{DDS_ROOT}/lib $ENV{NDDSHOME}/lib
     PATH_SUFFIXES ${DDS_HOST})
+find_library(DDS_CORE_LIBRARY nddstransporttcp
+    HINTS ${DDS_ROOT}/lib $ENV{DDS_ROOT}/lib $ENV{NDDSHOME}/lib
+    PATH_SUFFIXES ${DDS_HOST})
 
 if(WIN32)
     set(DDS_EXTRA_LIBRARIES netapi32 advapi32 user32 ws2_32)

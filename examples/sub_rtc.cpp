@@ -72,6 +72,10 @@ RTC::ReturnCode_t SubscriberRTC::onExecute(RTC::UniqueId ec_id)
         std::cout << "Received value: " << tdt->int_value << ':' <<
             tdt->str_value << '\n';
     }
+    else
+    {
+        std::cout << "No data received\n";
+    }
     TestDataTypeTypeSupport::delete_data(tdt);
     return RTC::RTC_OK;
 }
