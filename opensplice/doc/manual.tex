@@ -1,0 +1,258 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{listings}
+\usepackage{a4wide}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\lstloadlanguages{Bash}
+\lstset{basicstyle=\small\ttfamily, escapeinside={(*@}{@*)},
+showstringspaces=false, breaklines=true, breakatwhitespace=true,
+tabsize=4, language=Bash, numberfirstline=true,
+commentstyle=\itshape\color{CommentGreen},
+stringstyle=\color{DataTypeBlue}}
+\newcommand{\ilcode}[1]{\lstinline|#1|}
+
+\title{rtmdds User's Guide}
+\author{Geoffrey Biggs}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+rtmdds adds support for the Data Distribution Service middleware
+standard to OpenRTM-aist. It provides two new types of ports for
+OpenRTM-aist RT-Components: a publisher port and a subscriber port.
+
+This software is developed at the National Institute of Advanced Industrial
+Science and Technology. Approval number H26PRO-1737. This software is licensed
+under the Lesser General Public License. See COPYING and COPYING.LESSER in the
+source.
+
+\section{Requirements}
+\label{sec:requirements}
+
+rtmdss requires the C++ version of OpenRTM-aist-1.0.0 or greater.
+
+rtmdds uses the CMake build system\footnote{http://www.cmake.org/}. You
+will need at least version 2.8 to be able to build the library.
+
+This edition of rtmdds is implemented to work with the DDS implementation
+provided by OpenSplice. You will need to install OpenSplice DDS
+before compiling this edition of rtmdss.
+
+\section{Installation}
+\label{sec:installation}
+
+\subsection{Binary}
+
+Users of Windows can install the library using the binary installer.
+This is the recommended method of installation in Windows.
+
+\begin{enumerate}
+  \item Install DDS.
+  \item Set up your environment for using DDS as described in your
+  implementation's documentation.
+  \item Download the rtmdds installer from the website.
+  \item Double-click the executable file to begin installation.
+  \item Follow the instructions to install the library.
+  \item You may need to restart your computer for environment variable
+  changes to take effect before using the component.
+\end{enumerate}
+
+\subsection{From source}
+
+Follow these steps to install :
+
+\begin{enumerate}
+  \item Install DDS.
+
+  \item Set up your environment for using DDS as described in your
+  implementation's documentation.
+
+  \item Download the source, either from the repository or a source archive,
+  and extract it somewhere.
+
+  \ilcode{tar -xvzf rtmdds.tar.gz}
+  \item Change to the directory containing the extracted source.
+
+  \ilcode{cd rtmdds}
+  \item Create a directory called ``build'':
+
+  \ilcode{mkdir build}
+  \item Change to that directory.
+
+  \ilcode{cd build}
+  \item Run cmake or cmake-gui.
+
+  \ilcode{cmake ../}
+  \item If no errors occurred, run make.
+
+  \ilcode{make}
+  \item Finally, install the library. Ensure the necessary permissions
+  to install into the chosen prefix are available.
+
+  \ilcode{make install}
+  \item The install destination can be changed by executing ccmake and
+  changing the variable \ilcode{CMAKE_INSTALL_PREFIX}.
+
+  \ilcode{ccmake ../}
+\end{enumerate}
+
+The library is now ready for use. See the next section for instructions on
+using the library.
+
+\section{Using the library}
+\label{sec:usage}
+
+To use the library in your own components, you must create publisher and
+subscriber port instances. The steps involved are:
+
+\begin{itemize}
+  \item Create an instance of RTC::DDSPubPort or RTC::DDSSubPort. The
+  template parameters must be the data type to be transported by the
+  port and either the DataWriter or the DataReader for that data type. A
+  DataWriter must be used with a DDSPubPort and a DataReader with a
+  DDSSubPort.
+  \item In the constructor of your component, initialise the port
+  instance with its name and the name of your data type (as a string).
+  \item In the onInitialize() method, register the port with your
+  component using either the addDDSPubPort() or addDDSSubPort() method.
+  \item Register your data type with DDS. The way this is done will vary
+  depending on your DDS implementation. The example components provided
+  with rtmdds use the RTI DDS API.
+  \item In the onExecute() method:
+  \begin{itemize}
+    \item For publishing ports, call write(), passing in a reference to
+    an instance of your data type.
+    \item For subscribing ports, call read(), passing in a pointer to a
+    data type.
+  \end{itemize}
+  \item The port instance will be cleaned up automatically by the
+  component when it destructs.
+\end{itemize}
+
+See the included example components for more detail.
+
+\section{Connecting ports}
+\label{sec:connecting}
+
+The DDS ports are not DataPorts. This means that their method of
+connection is different to DataPorts and ServicePorts. There are two
+ways to connect a DDS port: dynamic topic and pre-configured topic.
+
+When a DDS port is connected, it will look in the connector profile for
+the topic to connect to. This is specified in the \ilcode{ddsport.topic}
+property of the connector profile.
+
+\subsection{Pre-configured topic}
+
+If the \ilcode{ddsport.topic} property is found in the connector profile
+when the DDS port is connected, its value will be used as the name of
+the topic to connect the port to. This is particularly useful for
+connecting a port to an existing topic. For example, the \ilcode{rtcon}
+command from rtshell can be used to connect a port to an existing topic:
+
+\ilcode{$ rtcon pubcomp0.rtc:PublisherPort -p ddsport.topic=my_topic}
+
+Multiple ports can, of course, be connected to the same topic at the
+same time:
+
+\ilcode{$ rtcon pubcomp0.rtc:PublisherPort subcomp0.rtc:SubscriberPort -p ddsport.topic=a_topic}
+
+A pre-configured topic can also be set in the configuration properties
+of the port. If the \ilcode{ddsport.topic} property is not set in the
+connector profile, then the \ilcode{default_topic} property of the port
+will be checked next. This can be set in the component's configuration
+file.
+
+\subsection{Dynamic topic}
+
+If there is not a topic already in existance that you wish to connect
+your ports to, you can have one created for you dynamically. If
+both the \ilcode{ddsport.topic} connector profile property and the
+\ilcode{default_topic} port property are empty, a new topic will be
+created by the first port in the connection. This topic will be named
+after the port's name.
+
+\ilcode{$ rtcon pubcomp0.rtc:PublisherPort subcomp0.rtc:SubscriberPort}
+
+\section{Properties}
+\label{sec:props}
+
+The properties that can be set for a port are given in
+Table~\ref{tab:props}.
+
+\begin{table}[t]
+  \centering
+  \begin{tabularx}{\columnwidth}{lllX}
+    \toprule
+    Property & Type & Default & Effect \\
+    \midrule
+    verbose & Boolean & NO & Enables or disables debugging output from DDS.  \\
+    qos\_file & String & & Specifies the URLs of XML files giving QoS properties for the port. See~\ref{sec:qos}. \\
+    ignore\_user\_profile & Boolean & NO & Ignore the user QoS XML file. See the DDS documentation for details. \\
+    ignore\_env\_profile & Boolean & NO & Ignore the environment QoS XML file. See the DDS documentation for details. \\
+    ignore\_resource\_profile & Boolean & NO & Ignore the resource QoS XML file. See the DDS documentation for details. \\
+    domain & Integer & 0 & Specifies the domain to operate in. Ports on different domains are invisible to each other. \\
+    default\_topic & String & & Sets the default topic to connect to if the \ilcode{ddsport.topic} property is not set in the connector profile. \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Properties available on DDS ports.}
+  \label{tab:props}
+\end{table}
+
+\section{QoS}
+\label{sec:qos}
+
+DDS supports an extensive array of Quality of Service properties. It is
+capable of enforcing these properties in the transport at run-time,
+allowing you to configure how reliable a connection between two ports is
+without changing the code. These QoS properties are specified in an XML
+file that is loaded by the DDS implementation. You can specify an XML
+file for a port to load by setting the \ilcode{qos_file} property on that
+port. This must be a set of URLs. Only one file will be loaded. The URLs
+provide alternative locations for the XML file. If it cannot be found at
+the first URL, the second will be tried, and so on. Specify the URLs in
+the following format:
+
+\verb+[URL1|URL2|URL3|...|URLn]+
+
+\section{Examples}
+\label{sec:examples}
+
+A pair of example components, one publisher and one subscriber, are
+provided. They are installed to \ilcode{${prefix}/share/rtmdds/examples}.
+Follow these steps to build them (assuming rtmdds was installed in
+\ilcode{/usr/local}):
+
+\begin{enumerate}
+  \item \ilcode{cd $HOME}
+  \item \ilcode{mkdir rtmdds_examples}
+  \item \ilcode{cd rtmdds_examples}
+  \item \ilcode{cmake /usr/local/share/rtmdds/examples}
+  \item \ilcode{make}
+\end{enumerate}
+
+The example can be executed in conjunction with rtshell for connecting
+the ports.
+
+\begin{enumerate}
+  \item \ilcode{rtm-naming}
+  \item \ilcode{./rtmdds_pubcomp_standalone}
+  \item \ilcode{./rtmdds_subcomp_standalone}
+  \item \ilcode{rtcon /localhost/pubcomp0.rtc:PublisherPort
+  /localhost/subcomp0.rtc:SubscriberPort}
+  \item \ilcode{rtact /localhost/pubcomp0.rtc}
+  \item \ilcode{rtact /localhost/subcomp0.rtc}
+\end{enumerate}
+
+You should see data being published by \ilcode{pubcomp0.rtc} appearing in
+the terminal running \ilcode{subcomp0.rtc}.
+
+% \section{Changelog}
+
+
+\end{document}

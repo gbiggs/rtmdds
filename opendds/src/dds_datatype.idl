@@ -1,0 +1,12 @@
+module dds_datatype {
+
+#pragma DCPS_DATA_TYPE "dds_datatype::DdsDataType"
+#pragma DCPS_DATA_KEY  "dds_datatype::DdsDataType subject_id"
+
+	typedef sequence<octet> dds_data_t;
+
+	struct DdsDataType {
+		long subject_id;
+		dds_data_t data;
+	};
+};

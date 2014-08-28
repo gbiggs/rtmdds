@@ -1,0 +1,44 @@
+set(CPACK_PACKAGE_NAME "@PROJECT_NAME@")
+set(CPACK_PACKAGE_VERSION_MAJOR "@RTMDDS_VERSION_MAJOR@")
+set(CPACK_PACKAGE_VERSION_MINOR "@RTMDDS_VERSION_MINOR@")
+set(CPACK_PACKAGE_VERSION_PATCH "@RTMDDS_VERSION_PATCH@")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "@PKG_DESCRIPTION@")
+set(CPACK_PACKAGE_VENDOR "@PKG_VENDOR@")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "@PROJECT_NAME@")
+set(CPACK_PACKAGE_FILE_NAME "@PROJECT_NAME@-@RTMDDS_VERSION@")
+set(CPACK_RESOURCE_FILE_LICENSE "@PROJECT_SOURCE_DIR@/LICENSE.txt")
+
+set(CPACK_COMPONENTS_ALL library headers build doc examples)
+set(CPACK_COMPONENT_LIBRARY_DISPLAY_NAME "Library")
+set(CPACK_COMPONENT_LIBRARY_DESCRIPTION
+    "Library providing DDS support")
+set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Header files")
+set(CPACK_COMPONENT_HEADERS_DESCRIPTION
+    "Header files necessary to use the transport.")
+set(CPACK_COMPONENT_HEADERS_DEPENDS library)
+set(CPACK_COMPONENT_BUILD_DISPLAY_NAME "Build system files")
+set(CPACK_COMPONENT_BUILD_DESCRIPTION
+    "File to aid in building, such as CMake modules.")
+set(CPACK_COMPONENT_BUILD_DEPENDS library headers)
+set(CPACK_COMPONENT_DOC_DISPLAY_NAME "Documentation")
+set(CPACK_COMPONENT_DOC_DESCRIPTION
+    "User's guides.")
+set(CPACK_COMPONENT_DOC_DEPENDS library headers)
+set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "Examples")
+set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION
+    "Sample configuration files and other resources.")
+set(CPACK_COMPONENT_EXAMPLES_DEPENDS library headers build)
+
+IF (WIN32)
+    set(CPACK_NSIS_MUI_ICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.ico")
+    set(CPACK_NSIS_MUI_UNIICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.ico")
+    set(CPACK_PACKAGE_ICON "@PROJECT_SOURCE_DIR@/cmake\\rt_middleware_logo.bmp")
+    set(CPACK_NSIS_HELP_LINK "http://www.openrtm.org")
+    set(CPACK_NSIS_URL_INFO_ABOUT "http://www.openrtm.org")
+    set(CPACK_NSIS_MODIFY_PATH ON)
+    set(CPACK_NSIS_MENU_LINKS "share/doc/@PROJECT_NAME@/manual.pdf"
+        "User's guide (English)")
+    set(CPACK_NSIS_MENU_LINKS "share/doc/@PROJECT_NAME@/manual_jp.pdf"
+        "User's guide (Japanese)")
+ENDIF (WIN32)
+
